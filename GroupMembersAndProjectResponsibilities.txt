@@ -1,1 +1,5 @@
+
 Austin Vargason - github management, documentation review, and communications implementation for the project
+
+Micky Chan - Provide updates to ATOMS requirement document, opinion on functionality of app, any code snippets that are necessary and responsible for user testing
+
