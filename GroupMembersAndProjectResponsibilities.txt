@@ -4,3 +4,4 @@ Micky Chan - Provide updates to ATOMS requirement document, opinion on functiona
 
 Carlos Gomez - Provide assigned updates to the requirements document, opinion on design/layout, and assigned code snippets as needed.
 
+Montague La France - Provided updates to the requirements document, opinion on design/ alyout of application and information regarding API to be used.()made powerpoint 
