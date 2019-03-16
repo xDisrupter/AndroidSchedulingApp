@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-
 Austin Vargason - github management, documentation review, and communications implementation for the project
 
 Micky Chan - Provide updates to ATOMS requirement document, opinion on functionality of app, any code snippets that are necessary and responsible for user testing
 
-=======
 Carlos Gomez - Provide assigned updates to the requirements document, opinion on design/layout, and assigned code snippets as needed.
->>>>>>> c049b49384276ee95f7c04e06ca533afeec10efd
+
