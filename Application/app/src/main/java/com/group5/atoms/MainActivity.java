@@ -1,5 +1,6 @@
 package com.group5.atoms;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -72,6 +74,16 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        else if(id == R.id.action_logout) {
+            //get the intent to go back to the log in activity
+            Intent intentToLogin = new Intent(MainActivity.this, LoginActivity.class);
+
+            //sign out
+            FirebaseAuth.getInstance().signOut();
+
+            //Switch
+            MainActivity.this.startActivity(intentToLogin);
         }
 
         return super.onOptionsItemSelected(item);
