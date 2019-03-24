@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -40,6 +42,16 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //get the google account from the google sign in
+        Bundle extras = getIntent().getExtras();
+        GoogleSignInAccount account;
+
+        //check if the extras are null, if not get the google sign in account as a parceable
+        if (extras != null) {
+            account = (GoogleSignInAccount)extras.getParcelable("account");
+        }
+
     }
 
     @Override
