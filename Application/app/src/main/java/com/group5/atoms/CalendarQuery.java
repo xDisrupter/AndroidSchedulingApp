@@ -21,8 +21,7 @@ public class CalendarQuery {
 
 
     public int[] getOwnedCalendarIDs() {
-        Cursor cur = null;
-        ContentR
+        //TODO: fill this in
     }
 
 }
