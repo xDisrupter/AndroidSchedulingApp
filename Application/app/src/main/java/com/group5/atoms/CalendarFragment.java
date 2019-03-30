@@ -4,6 +4,7 @@ package com.group5.atoms;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.icu.text.DateFormat;
@@ -20,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 
@@ -32,17 +35,11 @@ public class CalendarFragment extends Fragment {
     //members needed
     private ArrayList<Long> calendarIds;
     private ArrayList<String> events;
-    private String email;
+    private FirebaseUser account;
+    final int MY_CAL_REQ = 20;
 
     //TODO: text view for debugging, need to fill out actual recycler/card views
     TextView debugTextView;
-
-    // The indices for the projection array above.
-    private static final int PROJECTION_ID_INDEX = 0;
-    private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
-    private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
-    private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
-    private static final int MY_CAL_REQ = 4;
 
     public CalendarFragment() {
         // Required empty public constructor
@@ -68,21 +65,21 @@ public class CalendarFragment extends Fragment {
         this.calendarIds = new ArrayList<>();
         this.events = new ArrayList<>();
 
-        //set email field
-        this.email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        //set account
+        account = FirebaseAuth.getInstance().getCurrentUser();
 
         //if the email is not equal to null
-        if (email != null) {
+        if (account != null) {
             //create the calendarId's
-            setCalendarIds(email);
+            setCalendarIds(account.getEmail());
         }
 
         return view;
     }
 
-
     //TODO: this needs to be implemented with a loader to prevent tying up the main thread
     private void setCalendarIds(String email) {
+
         //get a cursor and the content resolver
         Cursor cur = null;
         ContentResolver cr = getActivity().getContentResolver();
@@ -90,18 +87,18 @@ public class CalendarFragment extends Fragment {
         //declare mProjection
         String[] mProjection =
                 {
-                        CalendarContract.Calendars.ALLOWED_ATTENDEE_TYPES,
-                        CalendarContract.Calendars.ACCOUNT_NAME,
-                        CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
-                        CalendarContract.Calendars.CALENDAR_LOCATION,
-                        CalendarContract.Calendars.CALENDAR_TIME_ZONE
+                        CalendarContract.Calendars._ID,
+                        CalendarContract.Calendars.OWNER_ACCOUNT
                 };
+
+        // The indices for the projection array above.
+        final int PROJECTION_ID_INDEX = 0;
+        final int PROJECTION_OWNER_ACCOUNT_INDEX = 1;
 
         //set the uri and the selection args using the user's email
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
-        String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
-                + CalendarContract.Calendars.OWNER_ACCOUNT + " = ?))";
-        String[] selectionArgs = new String[]{email, email};
+        String selection = CalendarContract.Calendars.OWNER_ACCOUNT + " = ?";
+        String[] selectionArgs = {email};
 
         //run the query
         cur = cr.query(uri, mProjection, selection, selectionArgs, null);
@@ -128,7 +125,8 @@ public class CalendarFragment extends Fragment {
                 CalendarContract.Instances.EVENT_ID,      // 0
                 CalendarContract.Instances.BEGIN,         // 1
                 CalendarContract.Instances.TITLE,          // 2
-                CalendarContract.Instances.ORGANIZER
+                CalendarContract.Instances.ORGANIZER,
+                CalendarContract.Instances.CALENDAR_ID
         };
 
         // The indices for the projection array above.
@@ -136,6 +134,7 @@ public class CalendarFragment extends Fragment {
         final int PROJECTION_BEGIN_INDEX = 1;
         final int PROJECTION_TITLE_INDEX = 2;
         final int PROJECTION_ORGANIZER_INDEX = 3;
+        final int PROJECTION_CALENDAR_ID = 4;
 
         // Specify the date range you want to search for recurring event instances
         Calendar calendar = Calendar.getInstance();
@@ -173,13 +172,20 @@ public class CalendarFragment extends Fragment {
         // Submit the query
         ContentUris.appendId(builder, startMillis);
         ContentUris.appendId(builder, endMillis);
-        Cursor cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, null, null, "DTSTART ASC");
+        String selection = CalendarContract.Events.CALENDAR_ID + " = ?";
+        String[] selectionArgs = {calendarIds.get(0) + ""};
+        Cursor cur;
+
+        //here until create calendar added
+        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, null, null, "DTSTART ASC");
+
 
         while (cur.moveToNext()) {
 
             // Get the field values
             long eventID = cur.getLong(PROJECTION_ID_INDEX);
             long beginVal = cur.getLong(PROJECTION_BEGIN_INDEX);
+            long calendarID = cur.getLong(PROJECTION_CALENDAR_ID);
             String title = cur.getString(PROJECTION_TITLE_INDEX);
             String organizer = cur.getString(PROJECTION_ORGANIZER_INDEX);
 
@@ -189,7 +195,7 @@ public class CalendarFragment extends Fragment {
 
             Log.i("Calendar", "Date: " + formatter.format(calendar.getTime()));
 
-            this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime())));
+            this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\nCalendar ID: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime()), calendarID + ""));
         }
 
         //update the UI
@@ -203,6 +209,8 @@ public class CalendarFragment extends Fragment {
 
         //create a string builder
         StringBuilder sb = new StringBuilder();
+
+        sb.append("Owner: " + account.getEmail() + "\n");
 
         //fill the string builder with the calendar IDs
         for (Long id: this.calendarIds) {
