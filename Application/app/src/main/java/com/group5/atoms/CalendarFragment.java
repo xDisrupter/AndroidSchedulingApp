@@ -4,7 +4,6 @@ package com.group5.atoms;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.icu.text.DateFormat;
@@ -195,6 +194,7 @@ public class CalendarFragment extends Fragment {
 
             Log.i("Calendar", "Date: " + formatter.format(calendar.getTime()));
 
+            //TODO: Replace this with custom calendar events class to represent the data better
             this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\nCalendar ID: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime()), calendarID + ""));
         }
 
