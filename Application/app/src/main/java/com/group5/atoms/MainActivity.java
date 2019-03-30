@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,9 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -114,14 +114,11 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         else if(id == R.id.action_logout) {
-            //get the intent to go back to the log in activity
-            Intent intentToLogin = new Intent(MainActivity.this, LoginActivity.class);
-
+            Intent intentToLogin = new Intent(this, LoginActivity.class);
             //sign out
             FirebaseAuth.getInstance().signOut();
 
-            //Switch
-            MainActivity.this.startActivity(intentToLogin);
+            this.startActivity(intentToLogin);
         }
 
         return super.onOptionsItemSelected(item);
