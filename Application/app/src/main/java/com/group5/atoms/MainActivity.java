@@ -4,8 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,13 +14,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    //members
+    CalendarFragment calendarFragment;
+    FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +54,30 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //set the firebase user
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        //change the nav header contents
+        View headerView = navigationView.getHeaderView(0);
+        TextView navHeaderDN = headerView.findViewById(R.id.nav_header_display_name);
+        TextView navHeaderEmail = headerView.findViewById(R.id.nav_header_email);
+        ImageView navHeaderImage = headerView.findViewById(R.id.nav_header_image);
+
+        if (navHeaderDN != null) {
+            navHeaderDN.setText(currentUser.getDisplayName());
+        }
+
+        if (navHeaderEmail != null) {
+            navHeaderEmail.setText(currentUser.getEmail());
+        }
+
+        if (navHeaderImage != null) {
+            // show The Image in a ImageView
+            new DownloadImageTask(navHeaderImage).execute(currentUser.getPhotoUrl().toString());
+        }
+
         //swap the fragment layout with the calendar fragment
-        CalendarFragment calendarFragment = new CalendarFragment();
+        calendarFragment = new CalendarFragment();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
                 getSupportFragmentManager().beginTransaction();
 
@@ -105,18 +133,14 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_daily_view) {
+            calendarFragment.readEvents(0);
+        }
+        else if (id == R.id.nav_monthly_view) {
+            calendarFragment.readEvents(1);
+        }
+        else if (id == R.id.nav_yearly_view) {
+            calendarFragment.readEvents(2);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

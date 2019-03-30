@@ -68,8 +68,10 @@ public class CalendarFragment extends Fragment {
         this.calendarIds = new ArrayList<>();
         this.events = new ArrayList<>();
 
+        //set email field
         this.email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
+        //if the email is not equal to null
         if (email != null) {
             //create the calendarId's
             setCalendarIds(email);
@@ -110,13 +112,18 @@ public class CalendarFragment extends Fragment {
         }
 
         //get the event data
-        readEvents(2);
+        readEvents(0);
+    }
 
-        //update the UI
-        updateCalendarUI();
+    public void resetEvents() {
+        this.events = new ArrayList<>();
     }
 
     public void readEvents(int timeFrame) {
+
+        //reset events
+        resetEvents();
+
         final String[] INSTANCE_PROJECTION = new String[]{
                 CalendarContract.Instances.EVENT_ID,      // 0
                 CalendarContract.Instances.BEGIN,         // 1
@@ -166,7 +173,7 @@ public class CalendarFragment extends Fragment {
         // Submit the query
         ContentUris.appendId(builder, startMillis);
         ContentUris.appendId(builder, endMillis);
-        Cursor cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, null, null, null);
+        Cursor cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, null, null, "DTSTART ASC");
 
         while (cur.moveToNext()) {
 
@@ -185,7 +192,8 @@ public class CalendarFragment extends Fragment {
             this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime())));
         }
 
-
+        //update the UI
+        updateCalendarUI();
     }
 
 
