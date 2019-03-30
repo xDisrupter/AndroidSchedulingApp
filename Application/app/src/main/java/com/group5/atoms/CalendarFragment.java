@@ -177,7 +177,7 @@ public class CalendarFragment extends Fragment {
         Cursor cur;
 
         //here until create calendar added
-        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, null, null, "DTSTART ASC");
+        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART ASC");
 
 
         while (cur.moveToNext()) {
