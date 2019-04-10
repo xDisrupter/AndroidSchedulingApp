@@ -6,3 +6,6 @@ Docs/~$OMSRequirementsv0.7.docx
 Docs/~$ntagueVersion.docx
 Docs/~$OMSRequirementsv0.8.docx
 Docs/~$OMSRequirementsv0.9.docx
+Application/app/debug/
+Application/app/release/
+atoms.jks
