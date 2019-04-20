@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +42,12 @@ public class CalendarFragment extends Fragment {
     //TODO: text view for debugging, need to fill out actual recycler/card views
     TextView debugTextView;
 
+    private RecyclerView recyclerView;
+
+    private RecyclerAdapter recyclerAdapter;
+    private ArrayList<Event> eventList;
+
+
     public CalendarFragment() {
         // Required empty public constructor
     }
@@ -58,11 +66,16 @@ public class CalendarFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
         //get the text view for debugging
-        debugTextView = view.findViewById(R.id.debuggingTextView);
+       //  mmeeeee-- debugTextView = view.findViewById(R.id.debuggingTextView);
 
+       // recyclerView = rootView.findViewById(R.id.hackathons_recycler);
+
+
+print();
         //initialize array lists
         this.calendarIds = new ArrayList<>();
         this.events = new ArrayList<>();
+        this.eventList = new ArrayList<>();
 
         //set account
         account = FirebaseAuth.getInstance().getCurrentUser();
@@ -73,8 +86,24 @@ public class CalendarFragment extends Fragment {
             setCalendarIds(account.getEmail());
         }
 
+        //initialize recycler view
+
+        recyclerView = view.findViewById(R.id.recycler);
+        recyclerAdapter = new RecyclerAdapter(eventList, container.getContext());
+        recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
+        //We set our adapter.
+        recyclerView.setAdapter(recyclerAdapter);
+        //This method notifies RecyclerView whenever data is changed.
+        recyclerAdapter.notifyDataSetChanged();
+
         return view;
     }
+
+    public void print()
+    {
+        System.out.println(events);
+    }
+
 
     //TODO: this needs to be implemented with a loader to prevent tying up the main thread
     private void setCalendarIds(String email) {
@@ -113,6 +142,10 @@ public class CalendarFragment extends Fragment {
 
     public void resetEvents() {
         this.events = new ArrayList<>();
+    }
+
+    public void resetEventObject(){
+        this.eventList= new ArrayList<>();
     }
 
     public void readEvents(int timeFrame) {
@@ -193,8 +226,11 @@ public class CalendarFragment extends Fragment {
             calendar.setTimeInMillis(beginVal);
 
             Log.i("Calendar", "Date: " + formatter.format(calendar.getTime()));
-
+//////---------------------Here is where the data is added to the v=events arrayList
             //TODO: Replace this with custom calendar events class to represent the data better
+            Event evt = new Event( calendarID,  eventID,  formatter.format(calendar.getTime()), organizer,  title);
+            eventList.add(evt);
+            System.out.println(evt);
             this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\nCalendar ID: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime()), calendarID + ""));
         }
 
@@ -222,8 +258,12 @@ public class CalendarFragment extends Fragment {
             sb.append(eventLine + "\n");
         }
 
+        print();
+
+       // System.out.println(sb.toString());
+        //recEvents.add(sb.toString());
         //update the textView
-        debugTextView.setText(sb.toString());
+     //Monte commented out   debugTextView.setText(sb.toString());
     }
 
 }

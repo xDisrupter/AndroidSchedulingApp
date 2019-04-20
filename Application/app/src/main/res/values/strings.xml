@@ -20,7 +20,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="web_client_id">628062553733-tulnaodf2bb7blsk2r64loasevld9ukl.apps.googleusercontent.com</string>
+    <!-- When you pull from github remember to update this value-->
+    <string name="web_client_id">201261038230-l8jpm4tosreqmiltf8cki3u7scvs9ig6.apps.googleusercontent.com</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
