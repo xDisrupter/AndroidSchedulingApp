@@ -7,7 +7,7 @@
     tools:context=".CalendarFragment">
 
     <!-- TODO: Update this to actual calendar view -->
-    <ScrollView
+  <!--  <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -24,6 +24,19 @@
                 android:textAlignment="center" />
 
         </LinearLayout>
-    </ScrollView>
+    </ScrollView>  -->
+
+   <!-- tools:context=".fragment.Resources"> -->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+
+
+        ></android.support.v7.widget.RecyclerView>
+
+
 
 </FrameLayout>
