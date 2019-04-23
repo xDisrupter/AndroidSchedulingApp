@@ -1,7 +1,5 @@
 package com.group5.atoms;
 
-import java.util.Date;
-
 //Event class to store event data
 public class Event {
 

@@ -1,37 +1,14 @@
 package com.group5.atoms;
 import android.content.Context;
 
-import android.content.Intent;
-
-import android.net.Uri;
-
 import android.support.annotation.NonNull;
-
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-
 import android.view.LayoutInflater;
-
-import android.view.MotionEvent;
 import android.view.View;
-
 import android.view.ViewGroup;
-
 import android.widget.ImageView;
-
 import android.widget.TextView;
-
-
-
-/*import com.example.acm_demo.R;
-
-import com.example.acm_demo.models.mlh.Event;
-
-import com.squareup.picasso.Picasso;*/
-
-
 import java.util.ArrayList;
-import java.util.List;
 
 
 // RecyclerAdapter class
