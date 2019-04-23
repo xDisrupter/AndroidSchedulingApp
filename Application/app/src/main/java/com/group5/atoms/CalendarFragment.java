@@ -1,6 +1,7 @@
+//group5 package
 package com.group5.atoms;
 
-
+//imports for the calendar fragment
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -18,34 +19,26 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 import java.util.ArrayList;
+import java.util.Date;
 
-
-
-/**
- * A simple {@link Fragment} subclass.
- */
+//calendar fragment
 public class CalendarFragment extends Fragment {
 
     //members needed
     private ArrayList<Long> calendarIds;
-    private ArrayList<String> events;
     private FirebaseUser account;
+    private ArrayList<Event> events;
     final int MY_CAL_REQ = 20;
-
-    //TODO: text view for debugging, need to fill out actual recycler/card views
-    TextView debugTextView;
-
     private RecyclerView recyclerView;
-
     private RecyclerAdapter recyclerAdapter;
-    private ArrayList<Event> eventList;
 
 
     public CalendarFragment() {
@@ -65,17 +58,9 @@ public class CalendarFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
-        //get the text view for debugging
-       //  mmeeeee-- debugTextView = view.findViewById(R.id.debuggingTextView);
-
-       // recyclerView = rootView.findViewById(R.id.hackathons_recycler);
-
-
-print();
         //initialize array lists
         this.calendarIds = new ArrayList<>();
         this.events = new ArrayList<>();
-        this.eventList = new ArrayList<>();
 
         //set account
         account = FirebaseAuth.getInstance().getCurrentUser();
@@ -87,29 +72,23 @@ print();
         }
 
         //initialize recycler view
-
-        recyclerView = view.findViewById(R.id.recycler);
-        recyclerAdapter = new RecyclerAdapter(eventList, container.getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
+        this.recyclerView = view.findViewById(R.id.recycler);
+        this.recyclerAdapter = new RecyclerAdapter(this.events, container.getContext());
+        this.recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
         //We set our adapter.
-        recyclerView.setAdapter(recyclerAdapter);
-        //This method notifies RecyclerView whenever data is changed.
-        recyclerAdapter.notifyDataSetChanged();
+        this.recyclerView.setAdapter(recyclerAdapter);
 
+        //This method notifies RecyclerView whenever data is changed.
+        this.recyclerAdapter.notifyDataSetChanged();
+
+        //return the view
         return view;
     }
 
-    public void print()
-    {
-        System.out.println(events);
-    }
-
-
-    //TODO: this needs to be implemented with a loader to prevent tying up the main thread
+    //method to set the calendar ids based on the owners email
     private void setCalendarIds(String email) {
 
-        //get a cursor and the content resolver
-        Cursor cur = null;
+        //get the content resolver
         ContentResolver cr = getActivity().getContentResolver();
 
         //declare mProjection
@@ -121,7 +100,6 @@ print();
 
         // The indices for the projection array above.
         final int PROJECTION_ID_INDEX = 0;
-        final int PROJECTION_OWNER_ACCOUNT_INDEX = 1;
 
         //set the uri and the selection args using the user's email
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
@@ -129,7 +107,7 @@ print();
         String[] selectionArgs = {email};
 
         //run the query
-        cur = cr.query(uri, mProjection, selection, selectionArgs, null);
+        Cursor cur = cr.query(uri, mProjection, selection, selectionArgs, null);
 
         //get the data from the cursor
         while (cur.moveToNext()) {
@@ -137,26 +115,25 @@ print();
         }
 
         //get the event data
-        readEvents(0);
+        readEvents(0, null);
     }
 
-    public void resetEvents() {
-        this.events = new ArrayList<>();
+    //method to reset the events
+    public void resetEvents(){
+        this.events.clear();
     }
 
-    public void resetEventObject(){
-        this.eventList= new ArrayList<>();
-    }
-
-    public void readEvents(int timeFrame) {
+    public void readEvents(int timeFrame, Date chosenDate) {
 
         //reset events
         resetEvents();
 
+        // then get the string array for the projection indexes
         final String[] INSTANCE_PROJECTION = new String[]{
-                CalendarContract.Instances.EVENT_ID,      // 0
-                CalendarContract.Instances.BEGIN,         // 1
-                CalendarContract.Instances.TITLE,          // 2
+                CalendarContract.Instances.EVENT_ID,       // 0
+                CalendarContract.Instances.BEGIN,          // 1
+                CalendarContract.Instances.END,            // 2
+                CalendarContract.Instances.TITLE,          // 3
                 CalendarContract.Instances.ORGANIZER,
                 CalendarContract.Instances.CALENDAR_ID
         };
@@ -164,33 +141,41 @@ print();
         // The indices for the projection array above.
         final int PROJECTION_ID_INDEX = 0;
         final int PROJECTION_BEGIN_INDEX = 1;
-        final int PROJECTION_TITLE_INDEX = 2;
-        final int PROJECTION_ORGANIZER_INDEX = 3;
-        final int PROJECTION_CALENDAR_ID = 4;
+        final int PROJECTION_END_INDEX = 2;
+        final int PROJECTION_TITLE_INDEX = 3;
+        final int PROJECTION_ORGANIZER_INDEX = 4;
+        final int PROJECTION_CALENDAR_ID = 5;
 
         // Specify the date range you want to search for recurring event instances
+        // We use the date formatter to get our date and time formats
         Calendar calendar = Calendar.getInstance();
+
+        if (chosenDate != null) {
+            calendar.setTime(chosenDate);
+        }
+
         long startMillis;
         long endMillis;
-        DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-        int currentMonth = calendar.get(Calendar.MONTH);
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat timeFormat = new SimpleDateFormat("hh:mm a");
         int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
 
         // Construct the query with the desired date range.
         Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
 
         switch (timeFrame) {
             case 1:
+                calendar.set(currentYear, currentMonth, calendar.getFirstDayOfWeek(), 0, 0);
+                startMillis = calendar.getTimeInMillis();
+                calendar.set(currentYear, currentMonth, calendar.getWeekData().weekendCease, 23, 59, 59);
+                endMillis = calendar.getTimeInMillis();
+                break;
+            case 2:
                 calendar.set(currentYear, currentMonth, calendar.get(Calendar.DATE), 0, 0);
                 startMillis = calendar.getTimeInMillis();
                 int endMonth = calendar.getActualMaximum(Calendar.DATE);
                 calendar.set(currentYear, currentMonth, endMonth, 23, 59, 59);
-                endMillis = calendar.getTimeInMillis();
-                break;
-            case 2:
-                calendar.set(currentYear, 1, 1, 0, 0);
-                startMillis = calendar.getTimeInMillis();
-                calendar.set(currentYear, 12, 31, 23, 59, 59);
                 endMillis = calendar.getTimeInMillis();
                 break;
             default:
@@ -211,59 +196,46 @@ print();
         //here until create calendar added
         cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART ASC");
 
-
+        //while the cursor is able to iterate...
         while (cur.moveToNext()) {
 
             // Get the field values
             long eventID = cur.getLong(PROJECTION_ID_INDEX);
             long beginVal = cur.getLong(PROJECTION_BEGIN_INDEX);
+            long endVal = cur.getLong(PROJECTION_END_INDEX);
             long calendarID = cur.getLong(PROJECTION_CALENDAR_ID);
             String title = cur.getString(PROJECTION_TITLE_INDEX);
             String organizer = cur.getString(PROJECTION_ORGANIZER_INDEX);
 
             // Do something with the values.
-            Log.i("Calendar", "Event:  " + title);
-            calendar.setTimeInMillis(beginVal);
 
-            Log.i("Calendar", "Date: " + formatter.format(calendar.getTime()));
-//////---------------------Here is where the data is added to the v=events arrayList
-            //TODO: Replace this with custom calendar events class to represent the data better
-            Event evt = new Event( calendarID,  eventID,  formatter.format(calendar.getTime()), organizer,  title);
-            eventList.add(evt);
-            System.out.println(evt);
-            this.events.add(String.format("\nEvent: %s\nID: %s\nOrganizer: %s\nDate: %s\nCalendar ID: %s\n", title, eventID + "", organizer, formatter.format(calendar.getTime()), calendarID + ""));
+            //Log the calendar events to the information log
+            Log.i("Calendar", "Event:  " + title);
+
+            //set the begin time to the calendar variable
+            calendar.setTimeInMillis(beginVal);
+            Date startTime = calendar.getTime();
+            calendar.setTimeInMillis(endVal);
+            Date endTime = calendar.getTime();
+
+            Log.i("Calendar", "Date: " + dateFormat.format(calendar.getTime()));
+
+            Event evt = new Event( calendarID,  eventID,
+                    dateFormat.format(startTime.getTime()), organizer,  title,
+                    timeFormat.format(startTime.getTime()), timeFormat.format(endTime.getTime()));
+            this.events.add(evt);
         }
 
         //update the UI
         updateCalendarUI();
     }
 
-
-    //TODO: this needs to be updated to update Recycler view when implemented
     //updateCalendarUI, to be updated later
+    // currently notifying that the data has changed to the recycler adapter
     private void updateCalendarUI() {
-
-        //create a string builder
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Owner: " + account.getEmail() + "\n");
-
-        //fill the string builder with the calendar IDs
-        for (Long id: this.calendarIds) {
-            sb.append("CalendarID: " + id + "\n");
+        if (this.recyclerAdapter != null) {
+            this.recyclerAdapter.notifyDataSetChanged();
         }
-
-        //fill the text view with the event data
-        for (String eventLine : this.events) {
-            sb.append(eventLine + "\n");
-        }
-
-        print();
-
-       // System.out.println(sb.toString());
-        //recEvents.add(sb.toString());
-        //update the textView
-     //Monte commented out   debugTextView.setText(sb.toString());
     }
 
 }

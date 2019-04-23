@@ -11,13 +11,13 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="Daily" />
         <item
-            android:id="@+id/nav_monthly_view"
+            android:id="@+id/nav_weekly_view"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Monthly" />
+            android:title="Weekly" />
         <item
-            android:id="@+id/nav_yearly_view"
+            android:id="@+id/nav_monthly_view"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Yearly View" />
+            android:title="Monthly" />
     </group>
 
     <item android:title="Communicate">

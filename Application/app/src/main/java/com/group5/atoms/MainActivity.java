@@ -1,9 +1,12 @@
 package com.group5.atoms;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MotionEventCompat;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,18 +26,25 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, DatePickerDialog.OnDateSetListener {
 
     //members
     CalendarFragment calendarFragment;
     FirebaseUser currentUser;
+    int currentTimeFrame;
+    Date dateChosen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -83,6 +95,11 @@ public class MainActivity extends AppCompatActivity
 
         fragmentTransaction.replace(R.id.fragment_container, calendarFragment);
         fragmentTransaction.commit();
+
+        //set the view offset and timeframe
+        this.currentTimeFrame = 0;
+
+
     }
 
     @Override
@@ -120,6 +137,27 @@ public class MainActivity extends AppCompatActivity
 
             this.startActivity(intentToLogin);
         }
+        else if (id == R.id.action_datepicker) {
+            Calendar calendar = Calendar.getInstance();
+
+            DatePickerDialog datePickerDialog;
+
+            if (dateChosen != null) {
+
+                calendar.setTime(dateChosen);
+
+                datePickerDialog = new DatePickerDialog(
+                        MainActivity.this, MainActivity.this,
+                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE));
+            }
+            else {
+                datePickerDialog = new DatePickerDialog(
+                        MainActivity.this, MainActivity.this,
+                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE));
+            }
+
+            datePickerDialog.show();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -131,17 +169,29 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_daily_view) {
-            calendarFragment.readEvents(0);
+            this.currentTimeFrame = 0;
+            calendarFragment.readEvents(0, null);
+        }
+        else if (id == R.id.nav_weekly_view) {
+            this.currentTimeFrame = 1;
+            calendarFragment.readEvents(1, null);
         }
         else if (id == R.id.nav_monthly_view) {
-            calendarFragment.readEvents(1);
-        }
-        else if (id == R.id.nav_yearly_view) {
-            calendarFragment.readEvents(2);
+            this.currentTimeFrame = 2;
+            calendarFragment.readEvents(2, null);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Toast.makeText(MainActivity.this, "" + this.currentTimeFrame, Toast.LENGTH_SHORT).show();
+        calendarFragment.readEvents(this.currentTimeFrame, new GregorianCalendar(year, month, dayOfMonth).getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, dayOfMonth);
+        this.dateChosen = calendar.getTime();
     }
 }

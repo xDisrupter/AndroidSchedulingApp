@@ -8,6 +8,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_logout">Log Out</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="cardview_date_text">01-01-1979</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
@@ -23,7 +24,4 @@
 
     <!--Update this when you pull from github-->
     <string name="web_client_id">201261038230-136118jqk15b5ossodtnhhvhknjvlikn.apps.googleusercontent.com</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

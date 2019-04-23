@@ -11,4 +11,11 @@
         android:orderInCategory="99"
         android:title="@string/action_logout"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_datepicker"
+        android:title="@+id/action_datepicker"
+        android:icon="@drawable/ic_menu_gallery"
+        app:showAsAction="always"
+        />
 </menu>

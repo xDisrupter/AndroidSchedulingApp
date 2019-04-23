@@ -7,10 +7,12 @@ import android.net.Uri;
 
 import android.support.annotation.NonNull;
 
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.ViewGroup;
@@ -32,24 +34,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+// RecyclerAdapter class
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerViewHolder>{
 
 
-
-    //These are our variables, we have a list of Hackathons (supplied from the constructor)
-
-    //And our context, since we're working in another class.
-
+    // class members: An Array List holding type of Event to store the events and our context
     private ArrayList<Event> event;
 
     private Context mContext;
 
 
 
-    //This is our constructor.
-
-    //Here, we take in our data (the hackathons) and the context.
+    // constructor that takes in the Event arrayList and the context (not in use currently)
 
     public RecyclerAdapter(ArrayList<Event> evt, Context context) {
 
@@ -121,45 +117,57 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         TextView mEventLocation;
 
+        TextView mStartTime;
+
+        TextView mEndTime;
+
 
 
         //Here in the RecyclerViewHolder, we instantiate each View by finding their id.
 
-        //Since findViewById returns a view, we must type-cast it to match each type of the variables above.
+        // Since findViewById returns a view, we must type-cast it (this is redundant)
 
         public RecyclerViewHolder(View itemView){
 
             super(itemView);
 
-            mEventImage = (ImageView) itemView.findViewById(R.id.image_url);
+            mEventImage = itemView.findViewById(R.id.image_url);
 
-            mEvenTitle = (TextView) itemView.findViewById(R.id.title);
+            mEvenTitle =  itemView.findViewById(R.id.title);
 
-            mEventStart = (TextView) itemView.findViewById(R.id.start_date);
+            mEventStart = itemView.findViewById(R.id.start_date);
 
-            mEventLocation = (TextView) itemView.findViewById(R.id.location);
+            mEventLocation = itemView.findViewById(R.id.location);
 
+            mStartTime = itemView.findViewById(R.id.start_time);
 
-
-
+            mEndTime = itemView.findViewById(R.id.end_time);
 
         }
 
 
 
         //Here, we bind the information with the view itself.
+        // these set texts should be set to string resources
 
         void bind(final int position){
 
-            //Picasso.with(mContext).load(mHackathons.get(position).getImageUrl()).into(mEventImage);
 
-            mEvenTitle.setText("Event: "+event.get(position).getEvent());
+            mEvenTitle.setText(event.get(position).getEvent());
 
-            mEventStart.setText("Date: "+event.get(position).getDate());
+            mEventStart.setText(event.get(position).getDate());
 
-          //  mEventLocation.setText(mHackathons.get(position).getLocation());
+            String startTime = event.get(position).getStartTime();
+            String endTime = event.get(position).getEndTime();
 
-            //We also set each item view to have a onClickListener.
+            mStartTime.setText(startTime);
+
+            if (!startTime.equals(endTime)) {
+                mEndTime.setText(endTime);
+            }
+            else {
+                mEndTime.setText("");
+            }
 
             itemView.setOnClickListener(this);
 
@@ -167,20 +175,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
 
-        //We give functionality to the "onClick" saying that if the view is clicked, create a new intent and open up the
-
-        //URL on a browser.
+        //onClick for the recycler adapter
 
         @Override
 
         public void onClick(View view) {
-
-          //  String urlString = mHackathons.get(getAdapterPosition()).getUrl();
-
-          //  Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
-
-          //  mContext.startActivity(browserIntent);
-
+            //fill this is to redirect to edit event
         }
 
 
