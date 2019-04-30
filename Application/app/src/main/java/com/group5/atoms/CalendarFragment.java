@@ -111,9 +111,13 @@ public class CalendarFragment extends Fragment {
             this.calendarIds.add(cur.getLong(PROJECTION_ID_INDEX));
         }
 
+        //update the calendar id in the main activity
+        MainActivity.setCalendarId(this.calendarIds.get(0));
+
         //get the event data
         readEvents(0, null);
     }
+
 
     //method to reset the events
     public void resetEvents(){

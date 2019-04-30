@@ -4,7 +4,9 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -29,10 +33,13 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DatePickerDialog.OnDateSetListener {
 
     //members
-    CalendarFragment calendarFragment;
     FirebaseUser currentUser;
+    private CalendarFragment calendarFragment;
+    private AddEventFragment addEventFragment;
     int currentTimeFrame;
     Date dateChosen;
+    private static Long calendarId;
+    FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,15 +48,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,22 +77,38 @@ public class MainActivity extends AppCompatActivity
 
         if (navHeaderImage != null) {
             // show The Image in a ImageView
-            new DownloadImageTask(navHeaderImage).execute(currentUser.getPhotoUrl().toString());
+            Picasso.with(this).setLoggingEnabled(true);
+            System.out.println(currentUser.getPhotoUrl());
+            Picasso.with(this).load(currentUser.getPhotoUrl()).transform(new PicassoCircleTransformation()).into(navHeaderImage);
         }
 
         //swap the fragment layout with the calendar fragment
-        calendarFragment = new CalendarFragment();
-        android.support.v4.app.FragmentTransaction fragmentTransaction =
-                getSupportFragmentManager().beginTransaction();
+        this.calendarFragment = new CalendarFragment();
+        this.addEventFragment = new AddEventFragment();
 
-        fragmentTransaction.replace(R.id.fragment_container, calendarFragment);
-        fragmentTransaction.commit();
+        setFragment(calendarFragment);
+
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setFragment(addEventFragment);
+            }
+        });
 
         //set the view offset and timeframe
         this.currentTimeFrame = 0;
 
-
     }
+
+    public void setFragment(Fragment fragment) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -156,11 +170,12 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    //TODO: update navigation menu items and actions
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+
+        setFragment(calendarFragment);
 
         if (id == R.id.nav_daily_view) {
             this.currentTimeFrame = 0;
@@ -187,5 +202,13 @@ public class MainActivity extends AppCompatActivity
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, dayOfMonth);
         this.dateChosen = calendar.getTime();
+    }
+
+    public static Long getCalendarId() {
+        return calendarId;
+    }
+
+    public static void setCalendarId(Long calendarId) {
+        MainActivity.calendarId = calendarId;
     }
 }
