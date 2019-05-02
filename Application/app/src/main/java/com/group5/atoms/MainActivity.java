@@ -2,6 +2,7 @@ package com.group5.atoms;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        ///
+        android.support.v7.preference.PreferenceManager
+                .setDefaultValues(this, R.xml.preferences, false);
+        ///
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,7 +98,13 @@ public class MainActivity extends AppCompatActivity
         //set the view offset and timeframe
         this.currentTimeFrame = 0;
 
-
+        SharedPreferences sharedPref =
+                android.support.v7.preference.PreferenceManager
+                        .getDefaultSharedPreferences(this);
+        Boolean switchPref = sharedPref.getBoolean
+                (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+        Toast.makeText(this, switchPref.toString(),
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -122,6 +133,8 @@ public class MainActivity extends AppCompatActivity
 
         //TODO: add setting menu action here, switch to settings fragment
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         else if(id == R.id.action_logout) {

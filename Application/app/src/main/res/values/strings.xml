@@ -21,7 +21,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-
+<string name="switch_summary">Turn on or turn off</string>
+    <string name="switch_title">To be modified</string>
     <!--Update this when you pull from github-->
     <string name="web_client_id">201261038230-136118jqk15b5ossodtnhhvhknjvlikn.apps.googleusercontent.com</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
