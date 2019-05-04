@@ -21,6 +21,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
@@ -153,7 +155,10 @@ public class CalendarFragment extends Fragment {
 
         long startMillis;
         long endMillis;
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+        Toast.makeText(getContext(), MainActivity.dateSwitchPref, Toast.LENGTH_SHORT).show();
+
+        DateFormat dateFormat = new SimpleDateFormat(MainActivity.dateSwitchPref);
         DateFormat timeFormat = new SimpleDateFormat("hh:mm a");
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);

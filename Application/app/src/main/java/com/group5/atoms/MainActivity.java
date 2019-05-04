@@ -34,11 +34,15 @@ public class MainActivity extends AppCompatActivity
     FirebaseUser currentUser;
     int currentTimeFrame;
     Date dateChosen;
+    public static Boolean switchPref;
+    SharedPreferences sharedPref;
+    public static String dateSwitchPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -87,6 +91,15 @@ public class MainActivity extends AppCompatActivity
             new DownloadImageTask(navHeaderImage).execute(currentUser.getPhotoUrl().toString());
         }
 
+        //get the shared preferences
+        sharedPref = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(this);
+
+        //get the switch preference
+        switchPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+
+        //get the date format preference
+        dateSwitchPref = sharedPref.getString(SettingsActivity.DATE_PREFERENCE_KEY, "MM/dd/yyyy");
+
         //swap the fragment layout with the calendar fragment
         calendarFragment = new CalendarFragment();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -97,14 +110,6 @@ public class MainActivity extends AppCompatActivity
 
         //set the view offset and timeframe
         this.currentTimeFrame = 0;
-
-        SharedPreferences sharedPref =
-                android.support.v7.preference.PreferenceManager
-                        .getDefaultSharedPreferences(this);
-        Boolean switchPref = sharedPref.getBoolean
-                (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
-        Toast.makeText(this, switchPref.toString(),
-                Toast.LENGTH_SHORT).show();
     }
 
     @Override

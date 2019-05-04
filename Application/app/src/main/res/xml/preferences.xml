@@ -6,4 +6,12 @@
         android:key="example_switch"
         android:summary="@string/switch_summary"
         android:title="@string/switch_title" />
+
+
+    <android.support.v7.preference.ListPreference
+        android:defaultValue="MM/dd/yyyy"
+        android:key="date_list_preference"
+        android:title="@string/date_preference_title"
+        android:summary="@string/date_preference_summary"/>
+
 </PreferenceScreen>
