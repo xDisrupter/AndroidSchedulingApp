@@ -1,7 +1,13 @@
 package com.group5.atoms;
 
+import android.util.Log;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 //Event class to store event data
-public class Event {
+public class Event{
 
     //class members
     private long calendarID;

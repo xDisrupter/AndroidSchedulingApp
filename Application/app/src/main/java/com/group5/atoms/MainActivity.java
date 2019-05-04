@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
 
     public void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.replace(R.id.fragment_container, fragment, fragment.getClass().getName());
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
@@ -177,17 +177,17 @@ public class MainActivity extends AppCompatActivity
 
         setFragment(calendarFragment);
 
-        if (id == R.id.nav_daily_view) {
-            this.currentTimeFrame = 0;
-            calendarFragment.readEvents(0, null);
-        }
-        else if (id == R.id.nav_weekly_view) {
-            this.currentTimeFrame = 1;
-            calendarFragment.readEvents(1, null);
-        }
-        else if (id == R.id.nav_monthly_view) {
-            this.currentTimeFrame = 2;
-            calendarFragment.readEvents(2, null);
+        if (calendarFragment.isVisible()) {
+            if (id == R.id.nav_daily_view) {
+                this.currentTimeFrame = 0;
+                calendarFragment.readEvents(0, null);
+            } else if (id == R.id.nav_weekly_view) {
+                this.currentTimeFrame = 1;
+                calendarFragment.readEvents(1, null);
+            } else if (id == R.id.nav_monthly_view) {
+                this.currentTimeFrame = 2;
+                calendarFragment.readEvents(2, null);
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -197,7 +197,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Toast.makeText(MainActivity.this, "" + this.currentTimeFrame, Toast.LENGTH_SHORT).show();
         calendarFragment.readEvents(this.currentTimeFrame, new GregorianCalendar(year, month, dayOfMonth).getTime());
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, dayOfMonth);

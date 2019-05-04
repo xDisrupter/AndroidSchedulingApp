@@ -24,6 +24,8 @@ import android.view.ViewGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 //calendar fragment
@@ -167,13 +169,19 @@ public class CalendarFragment extends Fragment {
 
         switch (timeFrame) {
             case 1:
-                calendar.set(currentYear, currentMonth, calendar.getFirstDayOfWeek(), 0, 0);
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+                calendar.set(Calendar.HOUR_OF_DAY,0);
+                calendar.set(Calendar.MINUTE,0);
+                calendar.set(Calendar.SECOND,0);
                 startMillis = calendar.getTimeInMillis();
-                calendar.set(currentYear, currentMonth, calendar.getWeekData().weekendCease, 23, 59, 59);
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+                calendar.set(Calendar.HOUR_OF_DAY,12);
+                calendar.set(Calendar.MINUTE,59);
+                calendar.set(Calendar.SECOND,59);
                 endMillis = calendar.getTimeInMillis();
                 break;
             case 2:
-                calendar.set(currentYear, currentMonth, calendar.get(Calendar.DATE), 0, 0);
+                calendar.set(currentYear, currentMonth, calendar.getActualMinimum(Calendar.DATE), 0, 0);
                 startMillis = calendar.getTimeInMillis();
                 int endMonth = calendar.getActualMaximum(Calendar.DATE);
                 calendar.set(currentYear, currentMonth, endMonth, 23, 59, 59);
@@ -195,7 +203,7 @@ public class CalendarFragment extends Fragment {
         Cursor cur;
 
         //here until create calendar added
-        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART ASC");
+        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART DESC");
 
         //while the cursor is able to iterate...
         while (cur.moveToNext()) {
