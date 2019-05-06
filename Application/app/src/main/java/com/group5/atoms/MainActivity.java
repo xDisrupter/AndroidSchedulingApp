@@ -2,6 +2,7 @@ package com.group5.atoms;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -40,14 +41,22 @@ public class MainActivity extends AppCompatActivity
     Date dateChosen;
     private static Long calendarId;
     FragmentManager fragmentManager;
+    public static Boolean switchPref;
+    SharedPreferences sharedPref;
+    public static String dateSwitchPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // set the default values for the preference manager
+        android.support.v7.preference.PreferenceManager
+                .setDefaultValues(this, R.xml.preferences, false);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -82,6 +91,15 @@ public class MainActivity extends AppCompatActivity
             Picasso.with(this).load(currentUser.getPhotoUrl()).transform(new PicassoCircleTransformation()).into(navHeaderImage);
         }
 
+        //get the shared preferences
+        sharedPref = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(this);
+
+        //get the switch preference
+        switchPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+
+        //get the date format preference
+        dateSwitchPref = sharedPref.getString(SettingsActivity.DATE_PREFERENCE_KEY, "MM/dd/yyyy");
+
         //swap the fragment layout with the calendar fragment
         this.calendarFragment = new CalendarFragment();
         this.addEventFragment = new AddEventFragment();
@@ -89,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         setFragment(calendarFragment);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,6 +154,8 @@ public class MainActivity extends AppCompatActivity
 
         //TODO: add setting menu action here, switch to settings fragment
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         else if(id == R.id.action_logout) {
