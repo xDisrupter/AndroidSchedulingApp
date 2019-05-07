@@ -20,6 +20,16 @@ public class AddEventFragment extends Fragment {
 
     //members
     private LinearLayout linearLayout;
+    //instances of the linear layouts for fields
+    LinearLayout startTimeLayout;
+    LinearLayout endTimeLayout;
+    LinearLayout dueDateLayout;
+    LinearLayout estHoursLayout;
+
+    private int eventType = 0; // 0 for static 1 for dynamic
+
+    private static final int STANDARD_EVENT = 0;
+    private static final int AUTO_EVENT = 1;
 
     public AddEventFragment() {
         // Required empty public constructor
@@ -34,6 +44,12 @@ public class AddEventFragment extends Fragment {
 
         //get the linear layout
         this.linearLayout = view.findViewById(R.id.add_event_linear);
+
+        //get the field linear layouts
+        this.startTimeLayout = view.findViewById(R.id.start_date_linear_layout);
+        this.endTimeLayout = view.findViewById(R.id.end_date_linear_layout);
+        this.dueDateLayout = view.findViewById(R.id.due_date_linear_layout);
+        this.estHoursLayout = view.findViewById(R.id.est_hours_linear_layout);
 
         //get a reference to the spinner that holds the event type
         Spinner eventTypeSpinner = view.findViewById(R.id.event_type_spinner);
@@ -57,7 +73,7 @@ public class AddEventFragment extends Fragment {
                     showStaticLayout();
                 }
                 else {
-                    //showDynamicLayout();
+                    showDynamicLayout();
                 }
             }
 
@@ -72,7 +88,28 @@ public class AddEventFragment extends Fragment {
     }
 
     private void showStaticLayout() {
-        //
+
+        this.eventType = STANDARD_EVENT;
+
+        //hide the due date and estimated hours field
+        dueDateLayout.setVisibility(View.GONE);
+        estHoursLayout.setVisibility(View.GONE);
+
+        //show the start date and end date
+        startTimeLayout.setVisibility(View.VISIBLE);
+        endTimeLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showDynamicLayout() {
+        this.eventType = AUTO_EVENT;
+
+        //hide the due date and estimated hours field
+        dueDateLayout.setVisibility(View.VISIBLE);
+        estHoursLayout.setVisibility(View.VISIBLE);
+
+        //show the start date and end date
+        startTimeLayout.setVisibility(View.GONE);
+        endTimeLayout.setVisibility(View.GONE);
     }
 
     @Override
