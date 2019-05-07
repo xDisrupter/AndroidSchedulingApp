@@ -208,7 +208,7 @@ public class CalendarFragment extends Fragment {
         Cursor cur;
 
         //here until create calendar added
-        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART DESC");
+        cur = getActivity().getContentResolver().query(builder.build(), INSTANCE_PROJECTION, selection, selectionArgs, "DTSTART ASC");
 
         //while the cursor is able to iterate...
         while (cur.moveToNext()) {
@@ -239,8 +239,6 @@ public class CalendarFragment extends Fragment {
                     timeFormat.format(startTime.getTime()), timeFormat.format(endTime.getTime()));
             this.events.add(evt);
         }
-
-        Collections.sort(events);
 
         //update the UI
         updateCalendarUI();
