@@ -1,19 +1,29 @@
 package com.group5.atoms;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract.*;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class AddEventFragment extends Fragment {
@@ -25,6 +35,17 @@ public class AddEventFragment extends Fragment {
     LinearLayout endTimeLayout;
     LinearLayout dueDateLayout;
     LinearLayout estHoursLayout;
+
+    private final int MY_CAL_WRITE_REQ = 42;
+
+    //get a reference to the submit button and the fields
+    Button submitButton;
+    EditText startDateEditText;
+    EditText endDateEditText;
+    EditText dueDateEditText;
+    EditText estHoursEditText;
+    EditText eventTitleEditText;
+    EditText eventDiscEditText;
 
     private int eventType = 0; // 0 for static 1 for dynamic
 
@@ -50,6 +71,15 @@ public class AddEventFragment extends Fragment {
         this.endTimeLayout = view.findViewById(R.id.end_date_linear_layout);
         this.dueDateLayout = view.findViewById(R.id.due_date_linear_layout);
         this.estHoursLayout = view.findViewById(R.id.est_hours_linear_layout);
+
+        //get a reference to the submit button and text fields
+        this.submitButton = view.findViewById(R.id.submit_event);
+        this.startDateEditText = view.findViewById(R.id.start_date_field);
+        this.endDateEditText = view.findViewById(R.id.end_date_field);
+        this.dueDateEditText = view.findViewById(R.id.due_date_field);
+        this.estHoursEditText = view.findViewById(R.id.est_hours_field);
+        this.eventTitleEditText = view.findViewById(R.id.event_title_field);
+        this.eventDiscEditText = view.findViewById(R.id.event_disc_field);
 
         //get a reference to the spinner that holds the event type
         Spinner eventTypeSpinner = view.findViewById(R.id.event_type_spinner);
@@ -80,6 +110,16 @@ public class AddEventFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //do nothing
+            }
+        });
+
+        //set the onclick for the submit button
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (eventType == STANDARD_EVENT) {
+                    createStandardEvent();
+                }
             }
         });
 
@@ -120,6 +160,72 @@ public class AddEventFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void createStandardEvent() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy:hh:mm");
+
+        try {
+            Date startDate = simpleDateFormat.parse(startDateEditText.getText().toString());
+            Date endDate = simpleDateFormat.parse(endDateEditText.getText().toString());
+            String eventTitle = eventTitleEditText.getText().toString();
+            String eventDisc = eventDiscEditText.getText().toString();
+
+            addEvent(eventTitle, eventDisc, startDate, endDate);
+        }
+        catch (Exception e) {
+            Toast.makeText(getContext(), "Error Adding Event", Toast.LENGTH_LONG);
+        }
+    }
+
+    public void addEvent(String eventTitle, String eventDescription, Date startDateTime, Date endDateTime) {
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_CALENDAR}, MY_CAL_WRITE_REQ);
+        }
+
+        //get the calendar id from the main activity
+        long calID = MainActivity.getCalendarId();
+
+        System.out.println("Calendar Id" + calID);
+
+        //get longs to represent the start time and end time in milliseconds
+        long startMillis = 0;
+        long endMillis = 0;
+
+        //get a calendar object to represent the start time
+        Calendar beginTime = Calendar.getInstance();
+
+        //set the begin time
+        beginTime.setTime(startDateTime);
+
+        //set the start milliseconds
+        startMillis = beginTime.getTimeInMillis();
+
+        //get a calendar object to represent the end time
+        Calendar endTime = Calendar.getInstance();
+
+        //set the end time
+        endTime.setTime(endDateTime);
+
+        //set the end milliseconds
+        endMillis = endTime.getTimeInMillis();
+
+        ContentResolver cr = getContext().getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(Events.DTSTART, startMillis);
+        values.put(Events.DTEND, endMillis);
+        values.put(Events.TITLE, eventTitle);
+        values.put(Events.DESCRIPTION, eventDescription);
+        values.put(Events.CALENDAR_ID, calID);
+        values.put(Events.EVENT_TIMEZONE, "America/Los_Angeles");
+        Uri uri = cr.insert(Events.CONTENT_URI, values);
+
+        // get the event ID that is the last element in the Uri
+        long eventID = Long.parseLong(uri.getLastPathSegment());
+
+        //print the event id for debugging purposes
+        System.out.println("Event Id:" + eventID);
     }
 
 }
