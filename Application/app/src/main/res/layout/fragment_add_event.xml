@@ -5,12 +5,27 @@
     android:layout_height="match_parent"
     tools:context=".AddEventFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:id="@+id/add_event_linear"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Events"
-        android:layout_gravity="center"
-        android:textAlignment="center"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/event_type_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/event_type_label"
+            android:layout_marginTop="30dp"/>
+
+        <Spinner
+            android:id="@+id/event_type_spinner"
+            android:layout_width="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:layout_marginTop="5dp"></Spinner>
+    </LinearLayout>
 
 </FrameLayout>

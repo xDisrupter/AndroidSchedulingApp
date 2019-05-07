@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -104,14 +103,19 @@ public class MainActivity extends AppCompatActivity
         this.calendarFragment = new CalendarFragment();
         this.addEventFragment = new AddEventFragment();
 
+        //set the calendar fragment to be the fragment that opens with the app
         setFragment(calendarFragment);
 
-
+        //get a reference to the fab button
         FloatingActionButton fab = findViewById(R.id.fab);
+
+        //set the on click listener for the floating action button
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setFragment(addEventFragment);
+                //Start the addEventActivity
+                Intent intent = new Intent(getApplicationContext(), AddEventActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -120,6 +124,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //method to set the fragment displayed in main activity
     public void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment, fragment.getClass().getName());
@@ -152,12 +157,13 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //TODO: add setting menu action here, switch to settings fragment
+        //if the settings option is clicked in the menu start the settings fragment
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
+        //else if the logout option is selected, log the user out of the application
         else if(id == R.id.action_logout) {
             Intent intentToLogin = new Intent(this, LoginActivity.class);
             //sign out
@@ -165,6 +171,7 @@ public class MainActivity extends AppCompatActivity
 
             this.startActivity(intentToLogin);
         }
+        //if the date picker option is selected, show the datepicker to choose the current date
         else if (id == R.id.action_datepicker) {
             Calendar calendar = Calendar.getInstance();
 
@@ -187,6 +194,7 @@ public class MainActivity extends AppCompatActivity
             datePickerDialog.show();
         }
 
+        //return the super method result
         return super.onOptionsItemSelected(item);
     }
 
