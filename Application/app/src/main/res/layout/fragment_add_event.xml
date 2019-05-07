@@ -46,8 +46,8 @@
                 android:id="@+id/start_date_field"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:inputType="datetime"
-                android:hint="MM/dd/yyyy:hh:mm"/>
+                android:inputType="textNoSuggestions"
+                android:hint="MM/dd/yyyy:hh:mm a"/>
 
         </LinearLayout>
 
@@ -69,8 +69,8 @@
                 android:id="@+id/end_date_field"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:inputType="datetime"
-                android:hint="MM/dd/yyyy:hh:mm"/>
+                android:inputType="textNoSuggestions"
+                android:hint="MM/dd/yyyy:hh:mm a"/>
 
         </LinearLayout>
 
@@ -92,8 +92,8 @@
                 android:id="@+id/due_date_field"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:inputType="datetime"
-                android:hint="MM/dd/yyyy:hh:mm"/>
+                android:inputType="textNoSuggestions"
+                android:hint="MM/dd/yyyy:hh:mm a"/>
 
         </LinearLayout>
 

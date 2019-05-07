@@ -240,6 +240,8 @@ public class CalendarFragment extends Fragment {
             this.events.add(evt);
         }
 
+        Collections.sort(events);
+
         //update the UI
         updateCalendarUI();
     }
@@ -250,6 +252,10 @@ public class CalendarFragment extends Fragment {
         if (this.recyclerAdapter != null) {
             this.recyclerAdapter.notifyDataSetChanged();
         }
+    }
+
+    public ArrayList<Event> getEvents(){
+        return this.events;
     }
 
 }

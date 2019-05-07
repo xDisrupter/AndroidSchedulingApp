@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract.*;
@@ -21,9 +20,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 
 public class AddEventFragment extends Fragment {
@@ -120,6 +126,9 @@ public class AddEventFragment extends Fragment {
                 if (eventType == STANDARD_EVENT) {
                     createStandardEvent();
                 }
+                else {
+                    createDynamicEvent();
+                }
             }
         });
 
@@ -163,11 +172,11 @@ public class AddEventFragment extends Fragment {
     }
 
     public void createStandardEvent() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy:hh:mm");
+        DateTimeFormatter simpleDateFormat = DateTimeFormat.forPattern("MM/dd/yyyy:hh:mm a");
 
         try {
-            Date startDate = simpleDateFormat.parse(startDateEditText.getText().toString());
-            Date endDate = simpleDateFormat.parse(endDateEditText.getText().toString());
+            DateTime startDate = DateTime.parse(startDateEditText.getText().toString(), simpleDateFormat);
+            DateTime endDate = DateTime.parse(endDateEditText.getText().toString(), simpleDateFormat);
             String eventTitle = eventTitleEditText.getText().toString();
             String eventDisc = eventDiscEditText.getText().toString();
 
@@ -178,7 +187,107 @@ public class AddEventFragment extends Fragment {
         }
     }
 
-    public void addEvent(String eventTitle, String eventDescription, Date startDateTime, Date endDateTime) {
+    public void createDynamicEvent() {
+        //create a simple date format for parsing the date
+        DateTimeFormatter eventFormat = DateTimeFormat.forPattern(MainActivity.dateSwitchPref + "hh:mm a");
+        DateTimeFormatter simpleDateFormat = DateTimeFormat.forPattern("MM/dd/yyyy:hh:mm a");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+        try {
+            DateTime dueDate = DateTime.parse(dueDateEditText.getText().toString(), simpleDateFormat);
+            int estHours = Integer.parseInt(estHoursEditText.getText().toString());
+            String eventTitle = eventTitleEditText.getText().toString();
+            String eventDisc = eventDiscEditText.getText().toString();
+            DateTime today = DateTime.now();
+
+
+            //get the events
+            ArrayList<Event> events = MainActivity.calendarFragment.getEvents();
+
+            Collections.sort(events);
+
+            ArrayList<Interval> EventRanges = new ArrayList<>();
+
+            //get events between now and due date
+            for (Event event: events) {
+                DateTime eventStartTime = DateTime.parse(event.getDate() + event.getStartTime(), eventFormat);
+                DateTime eventEndTime = DateTime.parse(event.getDate() + event.getEndTime(), eventFormat);
+                Interval range = new Interval(eventStartTime, eventEndTime);
+
+                EventRanges.add(range);
+            }
+
+            //sort the list of intervals
+            Collections.sort(EventRanges, new IntervalComparator());
+
+            //check for overlapping events
+            isOverlapping(EventRanges);
+
+
+            //pick a random date and time between the specified time periods
+            Random r = new Random();
+
+
+            for (int i = 0; i < 5; i ++) {
+
+                DateTime tryDate;
+
+                if (dueDate.getDayOfMonth() != today.getDayOfMonth()) {
+                    int randomDate = r.nextInt(dueDate.getDayOfMonth() - today.getDayOfMonth()) + today.getDayOfMonth();
+                    int randomHour = r.nextInt(20 - 6) + 6;
+                    tryDate = new DateTime(today.getYear(), today.getMonthOfYear(), randomDate, randomHour, 0);
+                }
+                else {
+                    int randomHour = r.nextInt(20 - 6) + 6;
+                    tryDate = new DateTime(today.getYear(), today.getMonthOfYear(), dueDate.getDayOfMonth(), randomHour, 0);
+                }
+
+
+                int counter = 0;
+
+                for (Interval interval : EventRanges) {
+                    if (interval.contains(tryDate)) {
+                        break;
+                    }
+                    else {
+                        counter++;
+                        continue;
+                    }
+                }
+
+                if (counter == EventRanges.size()) {
+                    addEvent(eventTitle, eventDisc, tryDate, tryDate.plusHours(estHours));
+                    break;
+                }
+
+
+            }
+
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.toString());
+            Toast.makeText(getContext(), "Error Adding Event", Toast.LENGTH_LONG);
+        }
+
+    }
+
+    public boolean isOverlapping(List<Interval> sortedIntervals) {
+        for (int i = 0, n = sortedIntervals.size(); i < n - 1; i++) {
+            if (sortedIntervals.get(i).overlaps(sortedIntervals.get(i + 1))) {
+                return true; // your evaluation for overlap case
+            }
+        }
+
+        return false;
+    }
+
+    public int daysBetween(Date d1, Date d2){
+        return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    public void addEvent(String eventTitle, String eventDescription, DateTime startDateTime, DateTime endDateTime) {
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_CALENDAR}, MY_CAL_WRITE_REQ);
@@ -189,32 +298,10 @@ public class AddEventFragment extends Fragment {
 
         System.out.println("Calendar Id" + calID);
 
-        //get longs to represent the start time and end time in milliseconds
-        long startMillis = 0;
-        long endMillis = 0;
-
-        //get a calendar object to represent the start time
-        Calendar beginTime = Calendar.getInstance();
-
-        //set the begin time
-        beginTime.setTime(startDateTime);
-
-        //set the start milliseconds
-        startMillis = beginTime.getTimeInMillis();
-
-        //get a calendar object to represent the end time
-        Calendar endTime = Calendar.getInstance();
-
-        //set the end time
-        endTime.setTime(endDateTime);
-
-        //set the end milliseconds
-        endMillis = endTime.getTimeInMillis();
-
         ContentResolver cr = getContext().getContentResolver();
         ContentValues values = new ContentValues();
-        values.put(Events.DTSTART, startMillis);
-        values.put(Events.DTEND, endMillis);
+        values.put(Events.DTSTART, startDateTime.getMillis());
+        values.put(Events.DTEND, endDateTime.getMillis());
         values.put(Events.TITLE, eventTitle);
         values.put(Events.DESCRIPTION, eventDescription);
         values.put(Events.CALENDAR_ID, calID);

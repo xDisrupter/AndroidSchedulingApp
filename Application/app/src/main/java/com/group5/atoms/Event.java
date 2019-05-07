@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //Event class to store event data
-public class Event{
+public class Event implements Comparable<Event>{
 
     //class members
     private long calendarID;
@@ -89,5 +89,34 @@ public class Event{
         sb.append(event+" \n "+date);
         String str = sb.toString();
         return str;
+    }
+
+    @Override
+    public int compareTo(Event o) {
+        SimpleDateFormat eventFormat = new SimpleDateFormat(MainActivity.dateSwitchPref + "hh:mm a");
+
+        try {
+            Date startDate = eventFormat.parse(this.date + this.startTime);
+            Date endDate = eventFormat.parse(this.date + this.startTime);
+
+            Date otherStartDate = eventFormat.parse(this.date + this.startTime);
+            Date otherEndDate = eventFormat.parse(this.date + this.startTime);
+
+            if (endDate.before(otherStartDate)) {
+                return 1;
+            }
+            else if(startDate.equals(otherStartDate) && endDate.equals(otherEndDate)) {
+                return 0;
+            }
+            else {
+                return -1;
+            }
+
+        }
+        catch (Exception e) {
+
+        }
+
+        return 0;
     }
 }

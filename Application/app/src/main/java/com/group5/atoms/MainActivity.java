@@ -34,8 +34,7 @@ public class MainActivity extends AppCompatActivity
 
     //members
     FirebaseUser currentUser;
-    private CalendarFragment calendarFragment;
-    private AddEventFragment addEventFragment;
+    static CalendarFragment calendarFragment;
     int currentTimeFrame;
     Date dateChosen;
     private static Long calendarId;
@@ -100,8 +99,7 @@ public class MainActivity extends AppCompatActivity
         dateSwitchPref = sharedPref.getString(SettingsActivity.DATE_PREFERENCE_KEY, "MM/dd/yyyy");
 
         //swap the fragment layout with the calendar fragment
-        this.calendarFragment = new CalendarFragment();
-        this.addEventFragment = new AddEventFragment();
+        calendarFragment = new CalendarFragment();
 
         //set the calendar fragment to be the fragment that opens with the app
         setFragment(calendarFragment);
