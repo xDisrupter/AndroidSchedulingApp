@@ -193,8 +193,11 @@ public class CalendarFragment extends Fragment {
                 endMillis = calendar.getTimeInMillis();
                 break;
             default:
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
                 startMillis = calendar.getTimeInMillis();
-                calendar.add(Calendar.DATE, 1);
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
                 endMillis = calendar.getTimeInMillis();
                 break;
         }
